@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nubi · tu compañera</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; font-src 'self'; form-action 'none'; base-uri 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#ffffff">
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  :root{
+    --rosa:#f7b8cc; --rosa-claro:#fde7ee; --rosa-fuerte:#e8638f;
+    --burdeos:#7a1f3d; --burdeos-osc:#55122a; --crema:#fff8f4; --texto:#4a1527;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--texto);
+    background:radial-gradient(110% 60% at 50% 20%, #ffffff 0%, #f8f6f7 55%, #efebed 100%);background-attachment:fixed;
+    min-height:100vh;display:flex;justify-content:center;
+  }
+  .app{width:100%;max-width:440px;padding:22px 18px 40px}
+  header{text-align:center;margin-bottom:4px}
+  .saludo{font-family:Georgia,'Times New Roman',serif;font-size:1.65rem;font-weight:700;color:var(--burdeos)}
+  .fecha{font-size:.9rem;color:#9b4b67;margin-top:2px}
+
+  .escena{position:relative;height:330px;display:flex;justify-content:center;align-items:flex-end;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  #nubi{width:270px;height:320px;display:block}
+  .flor{position:absolute;left:50%;top:48%;font-size:24px;pointer-events:none;animation:flor 1.9s cubic-bezier(.2,.7,.3,1) forwards}
+  @keyframes flor{0%{opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(0)}15%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1.15) rotate(var(--rot))}}
+  .barra{height:10px;border-radius:99px;background:#f6d3df;overflow:hidden;margin:10px 0 4px}
+  .barra i{display:block;height:100%;background:linear-gradient(90deg,var(--rosa-fuerte),var(--burdeos));border-radius:99px;transition:width .5s}
+  .estado{font-family:Georgia,'Times New Roman',serif;font-size:1.15rem;color:var(--burdeos-osc);line-height:1.35}
+  .sub{font-size:.85rem;color:#9b4b67;margin-top:4px}
+  .horario{display:flex;gap:8px;align-items:center;margin-top:12px;font-size:.82rem;color:#9b4b67;flex-wrap:wrap}
+  .horario input{border:1.5px solid #f1c4d4;border-radius:10px;padding:6px 8px;font:700 .85rem system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--texto);background:#fff}
+  .vasos{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+  .vaso{width:34px;height:40px;border-radius:8px 8px 12px 12px;border:2px solid #e8a3bb;background:#fff;cursor:pointer;position:relative;overflow:hidden;padding:0}
+  .fuente{font-size:.78rem;color:#9b4b67;margin-top:8px;font-weight:700}
+  .regalo{margin-top:5px;display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:800;border:1.5px solid var(--rosa-fuerte);color:var(--rosa-fuerte);background:#fff;border-radius:999px;padding:3px 10px;cursor:pointer}
+  .regalo.ok{background:#e9f6ee;border-color:#6bb58a;color:#2f7a4f}
+  .frasco-fila{display:flex;gap:8px;margin-top:4px}
+  .frasco-fila input{flex:1;border:1.5px solid #f1c4d4;border-radius:14px;padding:10px 12px;font:600 .9rem system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--texto)}
+  .frasco-fila button,.flojo{background:var(--rosa-fuerte);color:#fff;border:0;border-radius:14px;padding:10px 14px;font:800 .9rem system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;cursor:pointer}
+  .flojo{width:100%;margin-top:10px;background:linear-gradient(135deg,#b63c66,#7a1f3d)}
+  .logro-sorpresa{margin-top:12px;padding:14px;border-radius:16px;background:var(--rosa-claro);font-family:Georgia,'Times New Roman',serif;font-size:1.1rem;color:var(--burdeos-osc);display:none}
+  .logro-sorpresa small{display:block;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:.78rem;color:#9b4b67;margin-top:6px}
+  .logro-item{padding:6px 0;border-bottom:1px dashed #f1c4d4;display:flex;justify-content:space-between;gap:8px}
+  .presets{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+  .presets button{flex:1;min-width:140px;border:1.5px solid #f1c4d4;background:#fff;color:var(--burdeos);border-radius:12px;padding:8px 6px;font:800 .8rem system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;cursor:pointer}
+  .presets button.activo{background:var(--rosa-fuerte);border-color:var(--rosa-fuerte);color:#fff}
+  .gym{background:linear-gradient(135deg,#fff,#fdeef3)}
+  .gym .hecho{margin-top:10px;background:var(--burdeos);color:#fff;border:0;border-radius:14px;padding:10px 16px;font:800 .9rem system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;cursor:pointer}
+  .gym .hecho.ok{background:#6bb58a}
+  .vaso.lleno::after{content:"";position:absolute;left:0;right:0;bottom:0;height:75%;background:linear-gradient(180deg,#f7b8cc,#e8638f)}
+  .gracias input{width:100%;border:0;border-bottom:1.5px dashed #f1c4d4;background:transparent;padding:10px 2px 8px 26px;font:600 .95rem system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--texto);outline:none}
+  .gracias .fila{position:relative}
+  .gracias .fila span{position:absolute;left:0;top:9px}
+  .gracias input:focus{border-bottom-color:var(--rosa-fuerte)}
+  details{margin-top:12px;font-size:.85rem;color:#9b4b67}
+  details summary{cursor:pointer;font-weight:800;color:var(--burdeos)}
+  .dia-gracias{margin-top:8px;padding:8px 10px;background:var(--rosa-claro);border-radius:12px}
+  .dia-gracias b{color:var(--burdeos)}
+  @keyframes subir{from{opacity:1;transform:translateY(0) scale(.6)}to{opacity:0;transform:translateY(-140px) scale(1.2)}}
+  .burbuja{position:absolute;top:6px;left:50%;transform:translateX(-50%);background:#fff;color:var(--burdeos);font-weight:800;font-size:.85rem;padding:6px 14px;border-radius:18px;box-shadow:0 6px 16px rgba(122,31,61,.15);width:max-content;max-width:92%;text-align:center;z-index:2}
+  .burbuja:after{content:"";position:absolute;bottom:-6px;left:50%;margin-left:-6px;border:6px solid transparent;border-top-color:#fff;border-bottom:0}
+
+  .tarjeta{background:#fff;border-radius:24px;padding:18px 18px;margin-top:14px;box-shadow:0 8px 24px rgba(122,31,61,.08);border:1px solid #f6dbe4}
+  .etiqueta{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--rosa-fuerte);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  .frase{font-family:Georgia,'Times New Roman',serif;font-size:1.22rem;line-height:1.4;color:var(--burdeos-osc)}
+  .trabajo{background:linear-gradient(135deg,#fde3ec,#f9cfdd)}
+  .trabajo .etiqueta,.trabajo .boton-otra{color:var(--burdeos)}
+  .fe{background:linear-gradient(135deg,var(--burdeos) 0%,#a0315a 100%);color:#fff}
+  .fe .etiqueta{color:#ffc9da}
+  .fe .frase{color:#fff;font-style:italic}
+  .fe .cita{margin-top:8px;font-size:.82rem;color:#ffd6e3;font-weight:700}
+  .boton-otra{margin-top:12px;background:none;border:1.5px solid currentColor;color:inherit;border-radius:999px;padding:6px 14px;font:700 .8rem system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;cursor:pointer;opacity:.85}
+
+  .lista{list-style:none}
+  .item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px dashed #f1c4d4}
+  .item:last-child{border-bottom:0}
+  .icono{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-size:1.25rem;flex-shrink:0;background:var(--rosa-claro)}
+  .item.evento .icono{background:#f6dbe5}
+  .info{flex:1;min-width:0}
+  .nombre{font-weight:800;color:var(--burdeos)}
+  .detalle{font-size:.82rem;color:#9b4b67}
+  .cuenta{font-weight:800;font-size:.78rem;padding:5px 10px;border-radius:999px;background:var(--rosa-claro);color:var(--burdeos);white-space:nowrap}
+  .cuenta.pronto{background:var(--rosa-fuerte);color:#fff}
+  .cuenta.hoy{background:var(--burdeos);color:#fff}
+  .borrar{background:none;border:0;color:#c88aa0;font-size:1.1rem;cursor:pointer;padding:4px}
+
+  .anadir{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .anadir input,.anadir select{width:100%;border:1.5px solid #f1c4d4;border-radius:14px;padding:10px 12px;font:600 .9rem system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--texto);background:#fff}
+  .anadir input[name=nombre]{grid-column:1/-1}
+  .anadir.con-hora select{grid-column:1/-1}
+  .anadir button{grid-column:1/-1;background:var(--rosa-fuerte);color:#fff;border:0;border-radius:14px;padding:12px;font:800 .95rem system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;cursor:pointer}
+  .nota{font-size:.78rem;color:#9b4b67;margin-top:12px;line-height:1.45}
+  .vacio{color:#9b4b67;font-size:.9rem;padding:8px 0}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="saludo" id="saludo">Hola</div>
+    <div class="fecha" id="fecha"></div>
+  </header>
+
+  <div class="escena" id="escena" aria-label="Toca a Nubi para una nueva frase">
+    <div class="burbuja" id="burbuja">¡Tócame! 💗</div>
+    <canvas id="nubi" aria-label="Nubi, una criaturita de peluche"></canvas>
+  </div>
+
+  <section class="tarjeta">
+    <div class="etiqueta" id="fraseEtiqueta">✨ Tu afirmación de hoy</div>
+    <p class="frase" id="frase"></p>
+    <div class="fuente" id="fraseFuente"></div>
+  </section>
+
+  <section class="tarjeta trabajo">
+    <div class="etiqueta">💼 Para el trabajo</div>
+    <p class="frase" id="trabajo"></p>
+    <button class="boton-otra" id="otraTrabajo">Otro mensaje</button>
+  </section>
+
+  <section class="tarjeta">
+    <div class="etiqueta">⏰ Tu jornada</div>
+    <p class="estado" id="jornadaEstado"></p>
+    <div class="barra" id="jornadaBarraW"><i id="jornadaBarra"></i></div>
+    <p class="sub" id="jornadaSub"></p>
+    <div class="presets">
+      <button type="button" data-ini="07:30" data-fin="17:30">Larga · 7:30–17:30</button>
+      <button type="button" data-ini="08:00" data-fin="16:00">Corta · 8:00–16:00</button>
+    </div>
+    <div class="horario">Hoy: de <input type="time" id="hIni" value="08:00"> a <input type="time" id="hFin" value="16:00"></div>
+  </section>
+
+  <section class="tarjeta gym" id="gymCard" style="display:none">
+    <div class="etiqueta">💪 Hoy toca gym</div>
+    <p class="frase" id="gymFrase"></p>
+    <button class="hecho" id="gymHecho">¡Entrenamiento hecho!</button>
+  </section>
+
+  <section class="tarjeta">
+    <div class="etiqueta">💧 Agua de hoy</div>
+    <div class="vasos" id="vasos"></div>
+    <p class="sub" id="aguaTxt"></p>
+  </section>
+
+  <section class="tarjeta fe">
+    <div class="etiqueta">🕊️ Palabra de Dios para hoy</div>
+    <p class="frase" id="fe"></p>
+    <div class="cita" id="cita"></div>
+    <button class="boton-otra" id="otraFe">Otro versículo</button>
+  </section>
+
+  <section class="tarjeta">
+    <div class="etiqueta">🫙 Mi frasco de logros</div>
+    <form class="frasco-fila" id="frascoForm">
+      <input id="logroInput" placeholder="Hoy he conseguido…" required>
+      <button type="submit">Guardar</button>
+    </form>
+    <p class="sub" id="frascoCuenta"></p>
+    <button class="flojo" id="diaFlojo">Hoy es un día flojo 🥺</button>
+    <div class="logro-sorpresa" id="logroSorpresa"></div>
+    <details id="frascoVer"><summary>Ver todo el frasco</summary><div id="frascoLista"></div></details>
+  </section>
+
+  <section class="tarjeta gracias">
+    <div class="etiqueta">🌷 Hoy doy gracias por…</div>
+    <div class="fila"><span>🌸</span><input data-i="0" placeholder="Algo bonito de hoy"></div>
+    <div class="fila"><span>🌸</span><input data-i="1" placeholder="Alguien que me alegró el día"></div>
+    <div class="fila"><span>🌸</span><input data-i="2" placeholder="Una bendición pequeña"></div>
+    <details id="graciasAntes"><summary>Días anteriores</summary><div id="graciasLista"></div></details>
+  </section>
+
+  <section class="tarjeta">
+    <div class="etiqueta">🎀 Próximas fechas</div>
+    <ul class="lista" id="lista"></ul>
+    <form class="anadir" id="form">
+      <input name="nombre" placeholder="¿Qué quieres recordar? (ej. Cumple de mamá)" required>
+      <input name="fecha" type="date" required>
+      <input name="hora" type="time" aria-label="Hora del evento" style="display:none">
+      <select name="tipo">
+        <option value="evento">📌 Evento</option>
+        <option value="cumple">🎂 Cumpleaños</option>
+      </select>
+      <button type="submit">Añadir fecha</button>
+    </form>
+    <p class="nota">Tus fechas se guardan solo en este móvil. Para que suene una alarma a su hora, ponlas también en el calendario del teléfono.</p>
+  </section>
+  <section class="tarjeta" id="ajustes">
+    <div class="etiqueta">⚙️ Ajustes</div>
+    <label class="sub" for="nombreInput">¿Cómo te llamo?</label>
+    <div class="frasco-fila"><input id="nombreInput" placeholder="Tu nombre" maxlength="30"></div>
+    <p class="sub" style="margin-top:14px">Días de gym</p>
+    <div class="presets" id="diasGymSel"></div>
+    <p class="sub" style="margin-top:14px">Copia de seguridad (tus datos solo viven en este móvil)</p>
+    <div class="presets">
+      <button type="button" id="exportar">⬇️ Guardar copia</button>
+      <button type="button" id="importarBtn">⬆️ Recuperar copia</button>
+    </div>
+    <input type="file" id="importar" accept="application/json,.json" style="display:none">
+    <p class="nota" id="copiaTxt">🔒 Nubi no tiene cuentas, ni anuncios, ni envía nada a internet. Todo lo que escribes se queda en tu teléfono.</p>
+  </section>
+</div>
+
+<script>
+const AÑO = new Date().getFullYear();
+
+const frases = [
+  "Soy fuerte y poderosa.",
+  "He vivido grandes cosas, y lo mejor todavía está por llegar.",
+  "He superado todo lo que me ha tocado vivir. Esto también.",
+  "Soy valiente, capaz y suficiente tal y como soy.",
+  "Merezco paz, alegría y descanso.",
+  "Mi historia está llena de victorias.",
+  "Confío en mí y en el camino que Dios ha trazado para mí.",
+  "Soy luz para los que me rodean.",
+  "Me trato con el mismo amor que doy a los demás.",
+  "Soy una mujer sabia, y sé lo que valgo.",
+  "Mis manos han construido mucho. Me siento orgullosa.",
+  "Elijo la calma. Elijo la alegría. Elijo vivir bonito.",
+  "Tengo todo lo que necesito para afrontar este día.",
+  "Mi valor no depende de lo que produzco.",
+  "Soy bendecida y lo sé.",
+  "Cada experiencia me ha hecho más fuerte y más sabia.",
+  "Me permito brillar sin pedir permiso.",
+  "Soy dueña de mi tiempo y de mi energía.",
+  "Lo que es para mí, llega a mí.",
+  "Hoy celebro a la mujer en la que me he convertido."
+];
+
+const trabajo = [
+  "Hecho es mejor que perfecto.",
+  "Es trabajo, no tu vida entera. Juega a las empresitas y no des de más.",
+  "Haz lo que te piden, bien hecho. El extra no hace falta.",
+  "Un 80 % bien hecho a tiempo vale más que un 100 % que te agota.",
+  "Nadie va a notar ese detalle que te quita el sueño. Suéltalo.",
+  "Tu jornada termina a su hora. Lo demás, mañana.",
+  "No eres responsable de todo. Delega, confía y respira.",
+  "No tienes que demostrar nada a nadie: tu trabajo ya habla por ti.",
+  "Hoy, cumple. No hace falta sobresalir en todo.",
+  "Antes de repasarlo otra vez: ¿de verdad hace falta? Envíalo.",
+  "Tu salud vale más que cualquier correo urgente.",
+  "Decir «esto lo veo mañana» también es ser profesional.",
+  "Sé buena en tu trabajo, no perfecta.",
+  "Pon el corazón en tu vida, y la cabeza en el trabajo.",
+  "Las empresas pasan; tu paz se queda contigo. Cuídala.",
+  "Lo suficiente es suficiente.",
+  "Que el trabajo no se lleve la mejor versión de ti. Guárdala para los tuyos.",
+  "Si mañana faltaras, la empresa seguiría. Tu familia no. Prioriza."
+];
+
+// Ideas de libros, explicadas con mis palabras (no son citas textuales)
+const libros = [
+  ["Regálate la primera hora del día: 20 minutos para mover el cuerpo, 20 para orar o escribir y 20 para aprender algo.", "El Club de las 5 de la mañana · Robin Sharma"],
+  ["Tus mañanas marcan tus días. Antes de mirar el móvil, mírate a ti.", "El Club de las 5 de la mañana · Robin Sharma"],
+  ["No puede importarte todo. Elige bien a qué le das tu energía, y el resto, suéltalo.", "El sutil arte de que (casi todo) te importe un caraj* · Mark Manson"],
+  ["La vida no va de no tener problemas, sino de elegir problemas que merezcan la pena.", "El sutil arte de que (casi todo) te importe un caraj* · Mark Manson"],
+  ["No siempre es culpa tuya, pero sí es tuya la decisión de qué haces con ello.", "El sutil arte de que (casi todo) te importe un caraj* · Mark Manson"],
+  ["Mejorar solo un 1 % cada día, sumado durante un año, lo cambia todo. Lo pequeño cuenta.", "Hábitos atómicos · James Clear"],
+  ["Cada cosa que haces es un voto por la mujer que quieres ser.", "Hábitos atómicos · James Clear"],
+  ["Si algo te cuesta empezar, hazlo solo 2 minutos. Empezar es la mitad del camino.", "Hábitos atómicos · James Clear"],
+  ["No te tomes nada como algo personal: lo que hacen y dicen los demás habla de ellos, no de ti.", "Los cuatro acuerdos · Miguel Ruiz"],
+  ["Haz siempre lo mejor que puedas… y recuerda que tu mejor cambia según el día. Cansada, tu mejor es otro, y está bien.", "Los cuatro acuerdos · Miguel Ruiz"],
+  ["No supongas: pregunta. Te ahorrarás muchos disgustos.", "Los cuatro acuerdos · Miguel Ruiz"],
+  ["Cuida tus palabras, también las que te dices a ti misma.", "Los cuatro acuerdos · Miguel Ruiz"],
+  ["Casi toda la angustia vive en el futuro. Vuelve al ahora: aquí y en este momento, estás bien.", "El poder del ahora · Eckhart Tolle"],
+  ["Aunque no puedas elegir lo que te pasa, siempre puedes elegir tu actitud ante ello.", "El hombre en busca de sentido · Viktor Frankl"],
+  ["Quien tiene un para qué encuentra fuerzas para casi cualquier cómo.", "El hombre en busca de sentido · Viktor Frankl"],
+  ["Tu propósito está donde se cruzan lo que amas, lo que se te da bien y lo que el mundo necesita.", "Ikigai · Héctor García y Francesc Miralles"],
+  ["Sin prisa, pero sin pausa. La vida no es una carrera.", "Ikigai · Héctor García y Francesc Miralles"],
+  ["No todo lo urgente es importante. Dedica tu tiempo primero a lo que de verdad importa.", "Los 7 hábitos de la gente altamente efectiva · Stephen Covey"],
+  ["Afila la sierra: descansar, cuidarte y recargar también es trabajar.", "Los 7 hábitos de la gente altamente efectiva · Stephen Covey"],
+  ["Añade «todavía»: no es que no sepas, es que todavía no sabes.", "Mindset · Carol Dweck"]
+];
+// Afirmaciones e ideas de libros intercaladas
+const mezcla = [];
+for (let i = 0; i < Math.max(frases.length, libros.length); i++){
+  if (frases[i]) mezcla.push({texto: frases[i]});
+  if (libros[i]) mezcla.push({texto: libros[i][0], fuente: libros[i][1]});
+}
+
+// Versículos de la Biblia Reina-Valera (revisión de 1909)
+const fe = [
+  ["Jehová es mi pastor; nada me faltará.", "Salmo 23:1"],
+  ["Todo lo puedo en Cristo que me fortalece.", "Filipenses 4:13"],
+  ["No temas, que yo soy contigo; no desmayes, que yo soy tu Dios que te esfuerzo: siempre te ayudaré, siempre te sustentaré con la diestra de mi justicia.", "Isaías 41:10"],
+  ["Mira que te mando que te esfuerces y seas valiente: no temas ni desmayes, porque Jehová tu Dios será contigo en donde quiera que fueres.", "Josué 1:9"],
+  ["Venid a mí todos los que estáis trabajados y cargados, que yo os haré descansar.", "Mateo 11:28"],
+  ["Dios es nuestro amparo y fortaleza, nuestro pronto auxilio en las tribulaciones.", "Salmo 46:1"],
+  ["He aquí, yo estoy con vosotros todos los días, hasta el fin del mundo.", "Mateo 28:20"],
+  ["Echando toda vuestra solicitud en él, porque él tiene cuidado de vosotros.", "1 Pedro 5:7"],
+  ["Y sabemos que a los que a Dios aman, todas las cosas les ayudan a bien.", "Romanos 8:28"],
+  ["Porque yo sé los pensamientos que tengo acerca de vosotros, dice Jehová, pensamientos de paz, y no de mal, para daros el fin que esperáis.", "Jeremías 29:11"],
+  ["Mi socorro viene de Jehová, que hizo los cielos y la tierra.", "Salmo 121:2"],
+  ["Fíate de Jehová de todo tu corazón, y no estribes en tu prudencia.", "Proverbios 3:5"],
+  ["Bástate mi gracia; porque mi potencia en la flaqueza se perfecciona.", "2 Corintios 12:9"],
+  ["Estad quietos, y conoced que yo soy Dios.", "Salmo 46:10"],
+  ["Nuevas son cada mañana; grande es tu fidelidad.", "Lamentaciones 3:23"],
+  ["Y Jehová es el que va delante de ti; él será contigo, no te dejará, ni te desamparará; no temas, ni te intimides.", "Deuteronomio 31:8"],
+  ["Jehová en medio de ti, poderoso, él salvará; gozaráse sobre ti con alegría, callará de amor, se regocijará sobre ti con cantar.", "Sofonías 3:17"],
+  ["Mas los que esperan a Jehová tendrán nuevas fuerzas; levantarán las alas como águilas, correrán, y no se cansarán, caminarán, y no se fatigarán.", "Isaías 40:31"],
+  ["La paz os dejo, mi paz os doy: no como el mundo la da, yo os la doy. No se turbe vuestro corazón, ni tenga miedo.", "Juan 14:27"],
+  ["Jehová es mi luz y mi salvación: ¿de quién temeré?", "Salmo 27:1"],
+  ["Y todo lo que hagáis, hacedlo de ánimo, como al Señor, y no a los hombres.", "Colosenses 3:23"],
+  ["No os congojéis por el día de mañana; que el día de mañana traerá su fatiga: basta al día su afán.", "Mateo 6:34"]
+];
+
+// Fechas iniciales
+const base = []; // tus fechas se añaden desde la app y se guardan solo en tu móvil
+
+function cargar(clave, porDefecto){ try{ const v = localStorage.getItem(clave); return v ? JSON.parse(v) : porDefecto; }catch(e){ return porDefecto; } }
+function guardar(clave, valor){ try{ localStorage.setItem(clave, JSON.stringify(valor)); }catch(e){} }
+
+let propias = cargar("nubi-fechas", []);
+let ocultas = cargar("nubi-ocultas", []);
+let regalos = cargar("nubi-regalos", []);
+
+const hoy = new Date(); hoy.setHours(0,0,0,0);
+const diaDelAño = Math.floor((hoy - new Date(hoy.getFullYear(),0,0)) / 864e5);
+
+// Saludo y fecha
+const h = new Date().getHours();
+document.getElementById("saludo").textContent =
+  (h < 12 ? "Buenos días" : h < 20 ? "Buenas tardes" : "Buenas noches") + (cargar("nubi-nombre", "") ? ", " + cargar("nubi-nombre", "") : "") + " 💗";
+document.getElementById("fecha").textContent =
+  (t=>t[0].toUpperCase()+t.slice(1))(hoy.toLocaleDateString("es-ES", {weekday:"long", day:"numeric", month:"long"}));
+
+// Frases
+let iFrase = diaDelAño % mezcla.length;
+let iFe = diaDelAño % fe.length;
+function pintarFrase(){
+  const m = mezcla[iFrase];
+  document.getElementById("frase").textContent = m.texto;
+  document.getElementById("fraseEtiqueta").textContent = m.fuente ? "📚 Una idea para hoy" : "✨ Tu afirmación de hoy";
+  document.getElementById("fraseFuente").textContent = m.fuente ? "Inspirado en «" + m.fuente.split(" · ")[0] + "», de " + m.fuente.split(" · ")[1] : "";
+}
+function pintarFe(){
+  document.getElementById("fe").textContent = fe[iFe][0];
+  document.getElementById("cita").textContent = fe[iFe][1] + " · Reina-Valera";
+}
+let iTrab = (diaDelAño * 7) % trabajo.length;
+function pintarTrabajo(){ document.getElementById("trabajo").textContent = trabajo[iTrab]; }
+pintarFrase(); pintarFe(); pintarTrabajo();
+document.getElementById("otraTrabajo").onclick = () => { iTrab = (iTrab + 1) % trabajo.length; pintarTrabajo(); };
+document.getElementById("otraFe").onclick = () => { iFe = (iFe + 1) % fe.length; pintarFe(); };
+
+
+// ---------- Nubi en canvas: pelo de peluche ----------
+let saltoInicio = null;
+(function(){
+  const W = 270, H = 320, dpr = Math.min(window.devicePixelRatio || 1, 3);
+  const cv = document.getElementById("nubi");
+  cv.width = W*dpr; cv.height = H*dpr;
+  const ctx = cv.getContext("2d");
+  const HUE = 350, SAT = 34, LUZ = 86;   // rosa empolvado muy suave
+
+  function rng(seed){ return () => (seed = (seed * 16807) % 2147483647) / 2147483647; }
+
+  function parte(o){
+    const pad = 24, w = (o.rx+pad)*2, h = (o.ry+pad)*2;
+    const c = document.createElement("canvas"); c.width = w*dpr; c.height = h*dpr;
+    const g = c.getContext("2d"); g.scale(dpr, dpr);
+    const ox = o.cx - o.rx - pad, oy = o.cy - o.ry - pad;
+    g.translate(-ox, -oy);
+    const R = rng(o.seed), h0 = o.h ?? HUE, s0 = o.s ?? SAT, l0 = o.l ?? LUZ;
+
+    // base suave para que no queden huecos
+    const gr = g.createRadialGradient(o.cx - o.rx*.3, o.cy - o.ry*.35, 2, o.cx, o.cy, Math.max(o.rx, o.ry));
+    gr.addColorStop(0, `hsl(${h0},${s0}%,${l0+5}%)`);
+    gr.addColorStop(1, `hsl(${h0},${s0+4}%,${l0-16}%)`);
+    g.fillStyle = gr; g.beginPath(); g.ellipse(o.cx, o.cy, o.rx*.92, o.ry*.92, 0, 0, Math.PI*2); g.fill();
+
+    function pelos(n, cx, cy, rx, ry, hh, ss, ll, largo, rmin){
+      const pts = [];
+      for (let i = 0; i < n; i++){
+        const a = R()*Math.PI*2, r = Math.max(rmin||0, Math.sqrt(R()));
+        pts.push([a, r]);
+      }
+      pts.sort((p, q) => p[1] - q[1]);
+      g.lineCap = "round";
+      for (const [a, r] of pts){
+        const x = cx + Math.cos(a)*r*rx, y = cy + Math.sin(a)*r*ry;
+        const nx = (x - cx)/rx, ny = (y - cy)/ry;
+        let dx = Math.cos(a)*r + (R()-.5)*.9, dy = Math.sin(a)*r + .45 + (R()-.5)*.6;
+        const m = Math.hypot(dx, dy) || 1; dx /= m; dy /= m;
+        let L = (2 + 7*r*r*r + R()*2.5) * largo;
+        let luz = ll - (nx*.5 + ny*.85)*11 - r*r*r*9 + (R()-.5)*5;
+        if (o.cara){
+          const fx = (x - o.cara[0])/o.cara[2], fy = (y - o.cara[1])/o.cara[3];
+          const d = fx*fx + fy*fy; if (d < 1.3){ const k = Math.min(1, 1.3 - d); luz += 5*k; L *= 1 - .4*k; }
+        }
+        if (R() < .06) luz += 6;
+        const curl = (R()-.5)*.4*L;
+        g.strokeStyle = `hsla(${hh},${ss}%,${Math.min(97, luz)}%,${.4 + R()*.4})`;
+        g.lineWidth = .55 + R()*.8;
+        g.beginPath(); g.moveTo(x, y);
+        g.quadraticCurveTo(x + dx*L*.5 - dy*curl, y + dy*L*.5 + dx*curl, x + dx*L, y + dy*L);
+        g.stroke();
+      }
+    }
+    pelos(Math.round(Math.PI*o.rx*o.ry/1.6*(o.densidad||1)), o.cx, o.cy, o.rx, o.ry, h0, s0, l0, o.largo||1);
+
+    if (o.interior){ // interior rosado de la oreja
+      const [ix, iy, irx, iry] = o.interior;
+      const gi = g.createRadialGradient(ix, iy - iry*.3, 1, ix, iy, iry);
+      gi.addColorStop(0, "hsl(350,62%,80%)"); gi.addColorStop(1, "hsl(350,48%,70%)");
+      g.fillStyle = gi; g.beginPath(); g.ellipse(ix, iy, irx, iry, 0, 0, Math.PI*2); g.fill();
+      pelos(220, ix, iy, irx, iry, 350, 55, 82, .45);
+      pelos(260, ix, iy, irx*1.15, iry*1.08, h0, s0, l0, .7, .88); // borde de pelo que lo envuelve
+    }
+    // suavizado: mezcla una copia desenfocada para que parezca terciopelo
+    const c2 = document.createElement("canvas"); c2.width = c.width; c2.height = c.height;
+    const g2 = c2.getContext("2d");
+    g2.filter = `blur(${1.1*dpr}px)`; g2.drawImage(c, 0, 0);
+    g2.filter = "none"; g2.globalAlpha = .55; g2.drawImage(c, 0, 0);
+    return {c: c2, ox, oy, w, h};
+  }
+
+  const cuerpo = parte({cx:135, cy:192, rx:88, ry:94, seed:11, cara:[135,174,54,40]});
+  const orejaI = parte({cx:100, cy:80, rx:18, ry:42, seed:21, largo:.8, interior:[100,84,8,27]});
+  const orejaD = parte({cx:170, cy:80, rx:18, ry:42, seed:22, largo:.8, interior:[170,84,8,27]});
+  const brazoI = parte({cx:62, cy:206, rx:20, ry:36, seed:31, largo:.9});
+  const brazoD = parte({cx:208, cy:206, rx:20, ry:36, seed:32, largo:.9});
+  const pieI = parte({cx:108, cy:281, rx:26, ry:18, seed:41, largo:.7, l:LUZ-4});
+  const pieD = parte({cx:162, cy:281, rx:26, ry:18, seed:42, largo:.7, l:LUZ-4});
+
+  function dib(p, rot, px, py){
+    ctx.save(); ctx.translate(px, py); ctx.rotate(rot); ctx.translate(-px, -py);
+    ctx.drawImage(p.c, p.ox, p.oy, p.w, p.h); ctx.restore();
+  }
+
+  function ojo(x, y, esc){
+    ctx.save(); ctx.translate(x, y); ctx.scale(1, esc);
+    const go = ctx.createRadialGradient(-2, -3, 1, 0, 0, 10);
+    go.addColorStop(0, "#4a2230"); go.addColorStop(1, "#12060a");
+    ctx.fillStyle = go; ctx.beginPath(); ctx.ellipse(0, 0, 7.5, 9, 0, 0, Math.PI*2); ctx.fill();
+    if (esc > .5){
+      ctx.fillStyle = "rgba(255,255,255,.95)";
+      ctx.beginPath(); ctx.arc(-2.3, -3.2, 2.8, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = "rgba(255,255,255,.7)";
+      ctx.beginPath(); ctx.arc(2.6, 3.2, 1.3, 0, Math.PI*2); ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function corazon(x, y, s){
+    ctx.save(); ctx.translate(x, y); ctx.scale(s, s);
+    const forma = () => { ctx.beginPath(); ctx.moveTo(0, 9);
+      ctx.bezierCurveTo(-14, 0, -12, -12, -5, -12); ctx.bezierCurveTo(-2, -12, 0, -9, 0, -7);
+      ctx.bezierCurveTo(0, -9, 2, -12, 5, -12); ctx.bezierCurveTo(12, -12, 14, 0, 0, 9); ctx.closePath(); };
+    ctx.shadowColor = "rgba(80,10,30,.25)"; ctx.shadowBlur = 3; ctx.shadowOffsetY = 1;
+    const gc = ctx.createLinearGradient(0, -12, 0, 9);
+    gc.addColorStop(0, "#b63c66"); gc.addColorStop(1, "#7a1f3d");
+    forma(); ctx.fillStyle = gc; ctx.fill(); ctx.shadowColor = "transparent";
+    ctx.save(); ctx.scale(.78, .78); forma(); ctx.setLineDash([1.6, 1.6]);
+    ctx.strokeStyle = "rgba(255,210,225,.8)"; ctx.lineWidth = .8; ctx.stroke(); ctx.restore();
+    ctx.restore();
+  }
+
+  function gorroCumple(t){
+    ctx.save(); ctx.translate(135, 106); ctx.rotate(.12 + Math.sin(t*1.5)*.03);
+    const g = ctx.createLinearGradient(-26, 0, 26, 0);
+    g.addColorStop(0, "#e8638f"); g.addColorStop(1, "#b63c66");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(-26, 0); ctx.lineTo(0, -62); ctx.lineTo(26, 0);
+    ctx.quadraticCurveTo(0, 7, -26, 0); ctx.fill();
+    ctx.fillStyle = "#fff4f8";
+    for (const [x, y] of [[-10,-12],[8,-22],[-3,-36],[6,-6],[-14,-2]]){ ctx.beginPath(); ctx.arc(x, y, 2.6, 0, Math.PI*2); ctx.fill(); }
+    ctx.fillStyle = "#7a1f3d"; ctx.beginPath(); ctx.arc(0, -63, 7, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,.5)"; ctx.beginPath(); ctx.arc(-2, -65, 2.4, 0, Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+  function gorroNavidad(t){
+    ctx.save(); ctx.translate(135, 110); ctx.rotate(-.06);
+    const g = ctx.createLinearGradient(0, -60, 0, 0);
+    g.addColorStop(0, "#c2224a"); g.addColorStop(1, "#8e1534");
+    ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(-40, 0);
+    ctx.quadraticCurveTo(-30, -52, 8, -58); ctx.quadraticCurveTo(40, -60, 52, -26 + Math.sin(t*1.8)*2);
+    ctx.quadraticCurveTo(30, -38, 22, -22); ctx.lineTo(40, 0); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "#fffaf6"; ctx.strokeStyle = "rgba(200,170,180,.6)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.ellipse(0, -2, 46, 11, 0, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.arc(53, -24 + Math.sin(t*1.8)*2, 9, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.restore();
+  }
+  function ojoDormido(x, y){
+    ctx.strokeStyle = "#2b1018"; ctx.lineWidth = 2.4; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.arc(x, y - 2, 7, .2*Math.PI, .8*Math.PI); ctx.stroke();
+  }
+  let animo = {noche:false, cumple:false, navidad:false}, ultimoAnimo = -1e9;
+  function calcularAnimo(){
+    const d = new Date(), h = d.getHours();
+    animo.noche = h >= 22 || h < 7;
+    animo.navidad = d.getMonth() === 11;
+    try { animo.cumple = hayCumpleHoy(); } catch(e){ animo.cumple = false; }
+  }
+
+  function frame(now){
+    const t = now/1000;
+    if (now - ultimoAnimo > 30000){ calcularAnimo(); ultimoAnimo = now; }
+    const dormida = animo.noche && !(window.despiertaHasta > now);
+    let y = Math.sin(t*2)*4, sx = 1 + Math.sin(t*2)*.012, sy = 1 - Math.sin(t*2)*.012, alza = Math.max(0, -y);
+    if (saltoInicio !== null){
+      const p = (now - saltoInicio)/750;
+      if (p < .22){ const q = p/.22; y = 6*q; sx = 1 + .09*q; sy = 1 - .09*q; alza = 0; }
+      else if (p < 1){ const q = (p - .22)/.78; y = -48*Math.sin(Math.PI*q); sx = .96 + .04*q; sy = 1.05 - .05*q; alza = -y; }
+      else saltoInicio = null;
+    }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+
+    // sombra
+    const k = Math.max(.45, 1 - alza/70);
+    const gs = ctx.createRadialGradient(135, 300, 2, 135, 300, 80*k);
+    gs.addColorStop(0, `rgba(122,31,61,${.28*k})`); gs.addColorStop(1, "rgba(122,31,61,0)");
+    ctx.fillStyle = gs; ctx.beginPath(); ctx.ellipse(135, 300, 80*k, 13*k, 0, 0, Math.PI*2); ctx.fill();
+
+    ctx.save();
+    ctx.translate(135, 296); ctx.scale(sx, sy); ctx.translate(-135, -296 + y);
+
+    const meneo = Math.sin(t*1.3)*.05, tic = (t % 5 < .5) ? Math.sin((t % 5)/.5*Math.PI)*.18 : 0;
+    dib(orejaI, -.3 + meneo - tic, 100, 116);
+    dib(orejaD, .3 - meneo, 170, 116);
+    dib(pieI, 0, 108, 281); dib(pieD, 0, 162, 281);
+    dib(brazoI, .55 + Math.sin(t*2)*.04, 62, 176);
+    dib(cuerpo, 0, 135, 192);
+
+    // carita
+    for (const cx of [100, 170]){
+      const gm = ctx.createRadialGradient(cx, 190, 1, cx, 190, 15);
+      gm.addColorStop(0, "rgba(240,90,130,.42)"); gm.addColorStop(1, "rgba(240,90,130,0)");
+      ctx.fillStyle = gm; ctx.beginPath(); ctx.arc(cx, 190, 15, 0, Math.PI*2); ctx.fill();
+    }
+    const fase = t % 4.2, parp = fase < .14 ? Math.max(.1, Math.abs(1 - fase/.07)) : 1;
+    if (dormida){ ojoDormido(112, 170); ojoDormido(158, 170); }
+    else { ojo(112, 170, parp); ojo(158, 170, parp); }
+    ctx.fillStyle = "hsl(348,52%,60%)";
+    ctx.beginPath(); ctx.ellipse(135, 184, 4.2, 3, 0, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = "#3a1220"; ctx.lineWidth = 1.8; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(135, 187); ctx.lineTo(135, 190);
+    ctx.moveTo(127, 191); ctx.quadraticCurveTo(131, 196, 135, 190);
+    ctx.quadraticCurveTo(139, 196, 143, 191); ctx.stroke();
+
+    corazon(135, 240, 1.25);
+    if (animo.cumple) gorroCumple(t); else if (animo.navidad) gorroNavidad(t);
+
+    // brazo saludando
+    const ciclo = t % 3.4, ola = (!dormida && ciclo < 1.5) ? Math.sin(ciclo*9)*.28*Math.sin(ciclo/1.5*Math.PI) : 0;
+    dib(brazoD, -2.45 + ola, 200, 176);
+
+    ctx.restore();
+    if (dormida){
+      ctx.fillStyle = "#9b4b67"; ctx.font = "800 16px system-ui, sans-serif";
+      for (let i = 0; i < 3; i++){
+        const p = ((t*.45) + i/3) % 1;
+        ctx.globalAlpha = Math.sin(p*Math.PI);
+        ctx.font = `800 ${11 + p*9}px system-ui, sans-serif`;
+        ctx.fillText("z", 205 + p*22 + Math.sin(p*6)*4, 110 - p*55);
+      }
+      ctx.globalAlpha = 1;
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+// Nubi interactiva
+const mensajes = ["¡Eres poderosa! 💪","¡Tú puedes! ✨","Dios te cuida 🕊️","No des de más 😉","¡Abrazo enorme! 🤗","Respira… 🌸","Hecho > perfecto 💗"];
+const escena = document.getElementById("escena");
+const burbuja = document.getElementById("burbuja");
+function decir(t){ burbuja.textContent = t; }
+function flores(n){
+  const tipos = ["🌸","🌷","🌺","🌼","💮","🌹"];
+  for (let k = 0; k < n; k++){
+    const f = document.createElement("span");
+    f.className = "flor";
+    f.textContent = tipos[Math.floor(Math.random()*tipos.length)];
+    const ang = -Math.PI/2 + (Math.random()-.5)*Math.PI*1.5, dist = 90 + Math.random()*80;
+    f.style.setProperty("--dx", Math.cos(ang)*dist + "px");
+    f.style.setProperty("--dy", (Math.sin(ang)*dist + 40) + "px");
+    f.style.setProperty("--rot", ((Math.random()-.5)*300) + "deg");
+    f.style.fontSize = (18 + Math.random()*14) + "px";
+    f.style.animationDelay = (k*0.04) + "s";
+    escena.appendChild(f);
+    setTimeout(() => f.remove(), 2200);
+  }
+}
+escena.addEventListener("click", () => {
+  iFrase = (iFrase + 1) % mezcla.length; pintarFrase();
+  const h = new Date().getHours();
+  if (h >= 22 || h < 7){ window.despiertaHasta = performance.now() + 5000; decir("Mmm… a dormir, que mañana más 🌙"); }
+  else decir(mensajes[Math.floor(Math.random()*mensajes.length)]);
+  saltoInicio = performance.now();
+  flores(12);
+});
+
+// Próximas fechas
+function proxima(item){
+  if (item.tipo === "cumple"){
+    let d = new Date(hoy.getFullYear(), item.mes-1, item.dia);
+    if (d < hoy) d = new Date(hoy.getFullYear()+1, item.mes-1, item.dia);
+    return d;
+  }
+  const [y,m,dd] = item.fecha.split("-").map(Number);
+  const [hh, mi] = (item.hora || "00:00").split(":").map(Number);
+  return new Date(y, m-1, dd, hh, mi);
+}
+function pintarLista(){
+  const todos = base.filter(b => !ocultas.includes(b.id)).concat(propias)
+    .map(i => ({...i, cuando: proxima(i)}))
+    .filter(i => i.cuando >= hoy)
+    .sort((a,b) => a.cuando - b.cuando);
+  const ul = document.getElementById("lista");
+  ul.innerHTML = "";
+  if (!todos.length){ ul.innerHTML = '<li class="vacio">No hay fechas próximas. ¡Añade la primera! 🌷</li>'; return; }
+  todos.forEach(i => {
+    const diaC = new Date(i.cuando); diaC.setHours(0,0,0,0);
+    const dias = Math.round((diaC - hoy) / 864e5);
+    const txt = dias === 0 ? (i.tipo === "cumple" ? "¡Es hoy! 🎉" : (i.hora ? "Hoy, " + i.hora : "¡Hoy!")) : dias === 1 ? "Mañana" : `Faltan ${dias} días`;
+    const clase = dias === 0 ? "hoy" : dias <= 7 ? "pronto" : "";
+    const li = document.createElement("li");
+    li.className = "item " + i.tipo;
+    li.innerHTML = `
+      <div class="icono">${i.tipo === "cumple" ? "🎂" : "📌"}</div>
+      <div class="info">
+        <div class="nombre"></div>
+        <div class="detalle">${i.cuando.toLocaleDateString("es-ES",{weekday:"long", day:"numeric", month:"long"})}${i.hora ? " · " + i.hora + " h" : ""}</div>
+        ${(i.tipo === "cumple" && dias <= 7) ? '<button class="regalo"></button>' : ""}
+      </div>
+      <span class="cuenta ${clase}">${txt}</span>
+      <button class="borrar" aria-label="Quitar">×</button>`;
+    li.querySelector(".nombre").textContent = (i.tipo === "cumple" ? "Cumple de " : "") + i.nombre;
+    const btnR = li.querySelector(".regalo");
+    if (btnR){
+      const clave = i.id + "-" + i.cuando.getFullYear();
+      const pintarR = () => { const ok = regalos.includes(clave);
+        btnR.className = "regalo" + (ok ? " ok" : "");
+        btnR.textContent = ok ? "🎁 Regalo listo ✓" : (dias === 0 ? "🎁 ¿Le diste su detalle?" : "🎁 ¿Y el regalo?"); };
+      btnR.onclick = () => { if (regalos.includes(clave)) regalos = regalos.filter(x => x !== clave);
+        else { regalos.push(clave); try{ decir("¡Qué detallista eres! 🎁"); flores(10); }catch(e){} }
+        guardar("nubi-regalos", regalos); pintarR(); };
+      pintarR();
+    }
+    li.querySelector(".borrar").onclick = () => {
+      if (i.id.startsWith("p")) propias = propias.filter(p => p.id !== i.id);
+      else ocultas.push(i.id);
+      guardar("nubi-fechas", propias); guardar("nubi-ocultas", ocultas); pintarLista();
+    };
+    ul.appendChild(li);
+  });
+}
+pintarLista();
+
+
+function hayCumpleHoy(){
+  return base.filter(b => !ocultas.includes(b.id)).concat(propias)
+    .some(i => i.tipo === "cumple" && i.mes === hoy.getMonth()+1 && i.dia === hoy.getDate());
+}
+const claveHoy = hoy.getFullYear() + "-" + String(hoy.getMonth()+1).padStart(2,"0") + "-" + String(hoy.getDate()).padStart(2,"0");
+
+function pendienteRegalo(){
+  return base.filter(b => !ocultas.includes(b.id)).concat(propias)
+    .filter(i => i.tipo === "cumple")
+    .map(i => { const c = proxima(i); return {nombre: i.nombre.split(",")[0], dias: Math.round((c - hoy)/864e5), clave: i.id + "-" + c.getFullYear()}; })
+    .filter(p => p.dias >= 1 && p.dias <= 7 && !regalos.includes(p.clave))
+    .sort((a, b) => a.dias - b.dias)[0];
+}
+
+// Saludo especial según el ánimo
+(function(){
+  const h = new Date().getHours();
+  if (hayCumpleHoy()){
+    const quien = base.filter(b => !ocultas.includes(b.id)).concat(propias)
+      .find(i => i.tipo === "cumple" && i.mes === hoy.getMonth()+1 && i.dia === hoy.getDate());
+    decir("¡Hoy es el cumple de " + quien.nombre.split(",")[0] + "! 🎉");
+  } else if (pendienteRegalo()){
+    const p = pendienteRegalo();
+    decir(p.dias === 1 ? `¡Mañana es el cumple de ${p.nombre}! ¿Y el regalo? 🎁` : `Faltan ${p.dias} días para el cumple de ${p.nombre}. ¿Y el regalo? 🎁`);
+  } else if (h >= 22 || h < 7) decir("Zzz… buenas noches 🌙");
+  else if (hoy.getMonth() === 11) decir("¡Feliz diciembre! 🎄");
+})();
+
+// Jornada, desconexión y pausas
+const hIni = document.getElementById("hIni"), hFin = document.getElementById("hFin");
+const horario = cargar("nubi-horario", {ini:"08:00", fin:"16:00"});
+hIni.value = horario.ini; hFin.value = horario.fin;
+function minutos(v){ const [a,b] = v.split(":").map(Number); return a*60 + b; }
+function fmt(m){ const h = Math.floor(m/60), mm = m % 60; return ((h ? h + " h " : "") + (mm ? mm + " min" : (h ? "" : "0 min"))).trim(); }
+let ultimaPausa = -1;
+function pintarJornada(){
+  const d = new Date(), ahora = d.getHours()*60 + d.getMinutes();
+  const ini = minutos(hIni.value), fin = minutos(hFin.value);
+  const est = document.getElementById("jornadaEstado"), sub = document.getElementById("jornadaSub");
+  const barW = document.getElementById("jornadaBarraW"), bar = document.getElementById("jornadaBarra");
+  const finde = d.getDay() === 0 || d.getDay() === 6;
+  if (finde){ est.textContent = "Hoy es día de descanso. El trabajo puede esperar. 🌿"; sub.textContent = "Disfruta de los tuyos."; barW.style.display = "none"; return; }
+  if (ahora < ini){ est.textContent = "Tu jornada aún no ha empezado. Disfruta de tu mañana. ☕"; sub.textContent = "Empiezas a las " + hIni.value + "."; barW.style.display = "none"; return; }
+  if (ahora >= fin){
+    est.textContent = "Ya está. Lo demás, mañana. 💗";
+    sub.textContent = "Tu jornada terminó a las " + hFin.value + ". Cierra el portátil y vuelve a ti.";
+    barW.style.display = "none"; return;
+  }
+  barW.style.display = "";
+  bar.style.width = Math.round((ahora - ini)/(fin - ini)*100) + "%";
+  const quedan = fin - ahora;
+  est.textContent = quedan <= 30 ? "Recta final: ve cerrando, sin prisas. 🌸" : "Te quedan " + fmt(quedan) + ". Ve a tu ritmo.";
+  const sigPausa = ini + Math.ceil((ahora - ini + 1)/60)*60;
+  sub.textContent = sigPausa < fin
+    ? "Próxima pausa a las " + String(Math.floor(sigPausa/60)).padStart(2,"0") + ":" + String(sigPausa%60).padStart(2,"0") + ": levántate, estírate y bebe agua."
+    : "Termina a las " + hFin.value + " y desconecta.";
+  // aviso dentro de la app cada hora de trabajo
+  if ((ahora - ini) % 60 === 0 && ahora !== ini && ultimaPausa !== ahora){
+    ultimaPausa = ahora; decir("¡Pausa! Estírate y bebe agua 💧"); flores(8);
+  }
+  if (ahora === fin - 1 && ultimaPausa !== ahora){ ultimaPausa = ahora; decir("En nada desconectas 🌙"); }
+}
+function marcarPreset(){ document.querySelectorAll(".presets button").forEach(b => b.classList.toggle("activo", b.dataset.ini === hIni.value && b.dataset.fin === hFin.value)); }
+[hIni, hFin].forEach(el => el.addEventListener("change", () => { guardar("nubi-horario", {ini:hIni.value, fin:hFin.value}); marcarPreset(); pintarJornada(); }));
+document.querySelectorAll(".presets button").forEach(b => b.onclick = () => {
+  hIni.value = b.dataset.ini; hFin.value = b.dataset.fin;
+  guardar("nubi-horario", {ini:hIni.value, fin:hFin.value}); marcarPreset(); pintarJornada();
+});
+marcarPreset();
+pintarJornada(); setInterval(pintarJornada, 30000);
+
+// Gym
+const diasGym = cargar("nubi-gym-dias", [2, 4, 6, 0]); // martes, jueves, sábado y domingo
+const frasesGym = [
+  "Tu cuerpo es templo del Espíritu Santo. Cuidarlo también es un acto de amor.",
+  "No hace falta el entreno perfecto. Hace falta ir.",
+  "Cada repetición es un regalo para ti dentro de 10 años.",
+  "Sudar hoy es dormir mejor esta noche.",
+  "Ve por ti, no por nadie más.",
+  "Fuerte por fuera, en paz por dentro.",
+  "Entrena porque te quieres, no porque te exiges."
+];
+let gymHechos = cargar("nubi-gym-hechos", []);
+function pintarGym(){
+  const card = document.getElementById("gymCard");
+  if (!diasGym.includes(new Date().getDay())){ card.style.display = "none"; return; }
+  card.style.display = "";
+  document.getElementById("gymFrase").textContent = frasesGym[diaDelAño % frasesGym.length];
+  const b = document.getElementById("gymHecho"), ok = gymHechos.includes(claveHoy);
+  b.className = "hecho" + (ok ? " ok" : ""); b.textContent = ok ? "✓ ¡Hecho! Qué orgullo 💗" : "¡Entrenamiento hecho!";
+}
+document.getElementById("gymHecho").onclick = () => {
+  if (gymHechos.includes(claveHoy)) gymHechos = gymHechos.filter(x => x !== claveHoy);
+  else { gymHechos.push(claveHoy); decir("¡Eres una máquina! 💪🌸"); flores(16); }
+  guardar("nubi-gym-hechos", gymHechos); pintarGym();
+};
+pintarGym();
+
+// Ajustes
+const nombreInput = document.getElementById("nombreInput");
+nombreInput.value = cargar("nubi-nombre", "");
+nombreInput.addEventListener("change", () => { guardar("nubi-nombre", nombreInput.value.trim()); location.reload(); });
+(function(){
+  const nombres = [["L",1],["M",2],["X",3],["J",4],["V",5],["S",6],["D",0]];
+  const cont = document.getElementById("diasGymSel");
+  nombres.forEach(([n, d]) => {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = n; b.style.minWidth = "38px";
+    const pintar = () => b.classList.toggle("activo", diasGym.includes(d));
+    b.onclick = () => { const i = diasGym.indexOf(d); if (i >= 0) diasGym.splice(i, 1); else diasGym.push(d);
+      guardar("nubi-gym-dias", diasGym); pintar(); pintarGym(); };
+    pintar(); cont.appendChild(b);
+  });
+})();
+document.getElementById("exportar").onclick = () => {
+  const datos = {};
+  try { for (let i = 0; i < localStorage.length; i++){ const k = localStorage.key(i); if (k.startsWith("nubi-")) datos[k] = localStorage.getItem(k); } } catch(e){}
+  const blob = new Blob([JSON.stringify({app:"nubi", fecha:claveHoy, datos}, null, 1)], {type:"application/json"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "nubi-copia-" + claveHoy + ".json";
+  document.body.appendChild(a); a.click(); a.remove();
+  document.getElementById("copiaTxt").textContent = "✅ Copia guardada en Descargas. Guárdala en un sitio seguro.";
+};
+document.getElementById("importarBtn").onclick = () => document.getElementById("importar").click();
+document.getElementById("importar").onchange = e => {
+  const f = e.target.files[0]; if (!f) return;
+  f.text().then(t => {
+    const j = JSON.parse(t);
+    if (j.app !== "nubi" || typeof j.datos !== "object") throw new Error("formato");
+    Object.entries(j.datos).forEach(([k, v]) => { if (k.startsWith("nubi-") && typeof v === "string") localStorage.setItem(k, v); });
+    location.reload();
+  }).catch(() => { document.getElementById("copiaTxt").textContent = "⚠️ Ese archivo no es una copia de Nubi."; });
+};
+if (!cargar("nubi-nombre", "")) decir("¡Hola! Dime tu nombre en Ajustes 🌸");
+
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+
+// Agua
+const META = 8;
+let agua = cargar("nubi-agua", {}); if (typeof agua[claveHoy] !== "number") agua = {[claveHoy]: 0};
+function pintarAgua(){
+  const n = agua[claveHoy], cont = document.getElementById("vasos"); cont.innerHTML = "";
+  for (let i = 0; i < META; i++){
+    const b = document.createElement("button");
+    b.className = "vaso" + (i < n ? " lleno" : ""); b.setAttribute("aria-label", "Vaso " + (i+1));
+    b.onclick = () => { agua[claveHoy] = (i < n) ? i : i + 1; guardar("nubi-agua", agua); pintarAgua();
+      if (agua[claveHoy] === META){ decir("¡Hidratadísima! 💧🌸"); flores(14); } };
+    cont.appendChild(b);
+  }
+  document.getElementById("aguaTxt").textContent = n >= META ? "¡Objetivo cumplido! Tu cuerpo te lo agradece." : n + " de " + META + " vasos. Toca un vaso cuando bebas.";
+}
+pintarAgua();
+
+// Frasco de logros
+let logros = cargar("nubi-logros", []);
+function pintarFrasco(){
+  document.getElementById("frascoCuenta").textContent = logros.length
+    ? `Tienes ${logros.length} ${logros.length === 1 ? "logro" : "logros"} en tu frasco. 🌟`
+    : "Tu frasco está vacío. Empieza por algo pequeño: también cuenta.";
+  document.getElementById("frascoVer").style.display = logros.length ? "" : "none";
+  const cont = document.getElementById("frascoLista"); cont.innerHTML = "";
+  logros.slice().reverse().forEach(l => {
+    const d = document.createElement("div"); d.className = "logro-item";
+    const t = document.createElement("span"); t.textContent = "🌟 " + l.texto;
+    const f = document.createElement("span"); f.textContent = l.fecha.split("-").reverse().slice(0,2).join("/"); f.style.whiteSpace = "nowrap";
+    d.append(t, f); cont.appendChild(d);
+  });
+}
+document.getElementById("frascoForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const inp = document.getElementById("logroInput"), v = inp.value.trim(); if (!v) return;
+  logros.push({texto: v, fecha: claveHoy}); guardar("nubi-logros", logros);
+  inp.value = ""; pintarFrasco(); decir("¡Al frasco! Estoy orgullosa de ti 🌟"); flores(12);
+});
+document.getElementById("diaFlojo").onclick = () => {
+  const caja = document.getElementById("logroSorpresa"); caja.style.display = "block";
+  if (!logros.length){ caja.innerHTML = "Hoy cuenta como logro haber llegado hasta aquí. Mañana será otro día. 💗"; decir("Te abrazo fuerte 🤗"); return; }
+  const l = logros[Math.floor(Math.random()*logros.length)];
+  const [y, m, d] = l.fecha.split("-").map(Number);
+  caja.textContent = "";
+  caja.append("«" + l.texto + "»");
+  const sm = document.createElement("small");
+  sm.textContent = "Lo conseguiste el " + new Date(y, m-1, d).toLocaleDateString("es-ES", {day:"numeric", month:"long", year:"numeric"}) + ". Si pudiste con eso, puedes con hoy.";
+  caja.appendChild(sm);
+  decir("¡Mira de lo que eres capaz! 💪"); flores(14);
+};
+pintarFrasco();
+
+// Gratitud
+let gracias = cargar("nubi-gracias", {});
+document.querySelectorAll(".gracias input").forEach(inp => {
+  const i = +inp.dataset.i;
+  inp.value = (gracias[claveHoy] || [])[i] || "";
+  inp.addEventListener("input", () => {
+    gracias[claveHoy] = gracias[claveHoy] || ["","",""];
+    gracias[claveHoy][i] = inp.value; guardar("nubi-gracias", gracias);
+  });
+  inp.addEventListener("change", () => {
+    if ((gracias[claveHoy] || []).filter(x => x && x.trim()).length === 3){ decir("¡Qué bonito día! 🌷"); flores(10); }
+  });
+});
+function pintarGracias(){
+  const dias = Object.keys(gracias).filter(k => k !== claveHoy && gracias[k].some(x => x && x.trim())).sort().reverse().slice(0, 14);
+  const cont = document.getElementById("graciasLista");
+  document.getElementById("graciasAntes").style.display = dias.length ? "" : "none";
+  cont.innerHTML = "";
+  dias.forEach(k => {
+    const [y,m,d] = k.split("-").map(Number);
+    const div = document.createElement("div"); div.className = "dia-gracias";
+    const b = document.createElement("b"); b.textContent = new Date(y, m-1, d).toLocaleDateString("es-ES", {weekday:"long", day:"numeric", month:"long"});
+    div.appendChild(b);
+    gracias[k].filter(x => x && x.trim()).forEach(x => { const p = document.createElement("div"); p.textContent = "🌸 " + x; div.appendChild(p); });
+    cont.appendChild(div);
+  });
+}
+pintarGracias();
+
+const formF = document.getElementById("form");
+function mostrarHora(){
+  const ev = formF.tipo.value === "evento";
+  formF.hora.style.display = ev ? "" : "none";
+  formF.classList.toggle("con-hora", ev);
+}
+formF.tipo.addEventListener("change", mostrarHora);
+mostrarHora();
+document.getElementById("form").addEventListener("submit", e => {
+  e.preventDefault();
+  const f = e.target;
+  const nombre = f.nombre.value.trim(); const fecha = f.fecha.value; const tipo = f.tipo.value; const hora = f.hora.value;
+  if (!nombre || !fecha) return;
+  const [y,m,d] = fecha.split("-").map(Number);
+  const nuevo = tipo === "cumple"
+    ? {id:"p"+Date.now(), nombre, tipo, mes:m, dia:d}
+    : {id:"p"+Date.now(), nombre, tipo, fecha, ...(hora ? {hora} : {})};
+  propias.push(nuevo); guardar("nubi-fechas", propias);
+  f.reset(); mostrarHora(); pintarLista();
+});
+</script>
+</body>
+</html>
