@@ -55,6 +55,13 @@
   .gym{background:linear-gradient(135deg,#fff,#fdeef3)}
   .gym .hecho{margin-top:10px;background:var(--burdeos);color:#fff;border:0;border-radius:14px;padding:10px 16px;font:800 .9rem system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;cursor:pointer}
   .gym .hecho.ok{background:#6bb58a}
+  .mis-frases{display:grid;gap:8px;margin-top:4px}
+  .mis-frases textarea,.mis-frases select,.mis-frases input{width:100%;border:1.5px solid #f1c4d4;border-radius:14px;padding:10px 12px;font:600 .9rem system-ui,sans-serif;color:var(--texto);background:#fff;resize:vertical}
+  .mis-frases textarea{font-family:Georgia,serif;font-size:1rem}
+  .mis-frases button{background:var(--rosa-fuerte);color:#fff;border:0;border-radius:14px;padding:11px;font:800 .95rem system-ui,sans-serif;cursor:pointer}
+  .mf-item{padding:8px 0;border-bottom:1px dashed #f1c4d4;display:flex;gap:8px;align-items:flex-start}
+  .mf-item div{flex:1}
+  .mf-item small{display:block;color:#9b4b67}
   .vaso.lleno::after{content:"";position:absolute;left:0;right:0;bottom:0;height:75%;background:linear-gradient(180deg,#f7b8cc,#e8638f)}
   .gracias input{width:100%;border:0;border-bottom:1.5px dashed #f1c4d4;background:transparent;padding:10px 2px 8px 26px;font:600 .95rem system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--texto);outline:none}
   .gracias .fila{position:relative}
@@ -168,6 +175,23 @@
     <details id="frascoVer"><summary>Ver todo el frasco</summary><div id="frascoLista"></div></details>
   </section>
 
+  <section class="tarjeta" id="misFrasesCard">
+    <div class="etiqueta">✍️ Mis frases</div>
+    <form id="fraseForm" class="mis-frases">
+      <textarea id="mfTexto" rows="3" placeholder="Escribe aquí la cita o frase, tal cual" required></textarea>
+      <select id="mfTipo">
+        <option value="libro">📖 Cita de un libro</option>
+        <option value="afirmacion">✨ Afirmación</option>
+        <option value="trabajo">💼 Para el trabajo</option>
+        <option value="versiculo">🕊️ Versículo</option>
+      </select>
+      <input id="mfFuente" placeholder="Libro y autor (ej. Esencialismo · Greg McKeown)">
+      <button type="submit">Guardar frase</button>
+    </form>
+    <p class="sub" id="mfCuenta"></p>
+    <details id="mfVer"><summary>Ver mis frases</summary><div id="mfLista"></div></details>
+  </section>
+
   <section class="tarjeta gracias">
     <div class="etiqueta">🌷 Hoy doy gracias por…</div>
     <div class="fila"><span>🌸</span><input data-i="0" placeholder="Algo bonito de hoy"></div>
@@ -275,7 +299,27 @@ const libros = [
   ["Sin prisa, pero sin pausa. La vida no es una carrera.", "Ikigai · Héctor García y Francesc Miralles"],
   ["No todo lo urgente es importante. Dedica tu tiempo primero a lo que de verdad importa.", "Los 7 hábitos de la gente altamente efectiva · Stephen Covey"],
   ["Afila la sierra: descansar, cuidarte y recargar también es trabajar.", "Los 7 hábitos de la gente altamente efectiva · Stephen Covey"],
-  ["Añade «todavía»: no es que no sepas, es que todavía no sabes.", "Mindset · Carol Dweck"]
+  ["Añade «todavía»: no es que no sepas, es que todavía no sabes.", "Mindset · Carol Dweck"],
+  ["El perfeccionismo no es buscar la excelencia: es un escudo para no sentir juicio. Puedes soltarlo.", "Los dones de la imperfección · Brené Brown"],
+  ["No tienes que ganarte tu valor: ya eres digna de amor tal y como eres.", "Los dones de la imperfección · Brené Brown"],
+  ["Descansar y disfrutar no son un premio por haber hecho todo: son una necesidad.", "Los dones de la imperfección · Brené Brown"],
+  ["Trátate con la misma compasión con la que tratarías a una amiga.", "Los dones de la imperfección · Brené Brown"],
+  ["Lo que otros piensen de ti es asunto suyo, no tuyo. Separa tus tareas de las de los demás.", "Atrévete a no gustar · Ichiro Kishimi y Fumitake Koga"],
+  ["Ser libre incluye aceptar que no le gustarás a todo el mundo.", "Atrévete a no gustar · Ichiro Kishimi y Fumitake Koga"],
+  ["No viniste al mundo para cumplir las expectativas de los demás.", "Atrévete a no gustar · Ichiro Kishimi y Fumitake Koga"],
+  ["Menos, pero mejor.", "Esencialismo · Greg McKeown"],
+  ["Si algo no es un sí claro, es un no.", "Esencialismo · Greg McKeown"],
+  ["Cada «no» a lo que no es esencial es un «sí» a lo que de verdad importa.", "Esencialismo · Greg McKeown"],
+  ["Dormir y descansar es proteger tu mejor herramienta: tú.", "Esencialismo · Greg McKeown"],
+  ["Una vida dura unas cuatro mil semanas. No las gastes intentando terminarlo todo.", "Cuatro mil semanas · Oliver Burkeman"],
+  ["Nunca llegarás a todo, y nadie llega. Aceptarlo es liberador.", "Cuatro mil semanas · Oliver Burkeman"],
+  ["Elegir qué dejar sin hacer no es fracasar: es priorizar.", "Cuatro mil semanas · Oliver Burkeman"],
+  ["Gran parte de lo que te preocupa nunca llega a pasar. No le des cortisol a lo que aún no existe.", "Cómo hacer que te pasen cosas buenas · Marian Rojas Estapé"],
+  ["Tu cuerpo reacciona igual a lo que imaginas que a lo que vives: cuida lo que piensas.", "Cómo hacer que te pasen cosas buenas · Marian Rojas Estapé"],
+  ["Rodéate de personas vitamina: las que te suman paz y alegría.", "Cómo hacer que te pasen cosas buenas · Marian Rojas Estapé"],
+  ["Casi nada es tan terrible como parece. Llámalo «molesto», no «horrible».", "El arte de no amargarse la vida · Rafael Santandreu"],
+  ["Necesitas muy poco para estar bien. Lo demás son deseos, no necesidades.", "El arte de no amargarse la vida · Rafael Santandreu"],
+  ["Cambia el «tengo que» por «me gustaría». Las exigencias amargan; las preferencias, no.", "El arte de no amargarse la vida · Rafael Santandreu"]
 ];
 // Afirmaciones e ideas de libros intercaladas
 const mezcla = [];
@@ -331,17 +375,37 @@ document.getElementById("fecha").textContent =
   (t=>t[0].toUpperCase()+t.slice(1))(hoy.toLocaleDateString("es-ES", {weekday:"long", day:"numeric", month:"long"}));
 
 // Frases
+// Frases que añades tú (se guardan solo en este móvil)
+let misFrases = cargar("nubi-misfrases", []);
+misFrases.forEach((m, k) => {
+  if (m.tipo === "libro") mezcla.splice(Math.min(mezcla.length, k*3 + 1), 0, {texto: m.texto, fuente: m.fuente, cita: true});
+  else if (m.tipo === "afirmacion") mezcla.splice(Math.min(mezcla.length, k*3 + 2), 0, {texto: m.texto});
+  else if (m.tipo === "trabajo") trabajo.push(m.texto);
+  else if (m.tipo === "versiculo") fe.push([m.texto, m.fuente || ""]);
+});
+
 let iFrase = diaDelAño % mezcla.length;
+(function(){ // al guardar una frase nueva, Nubi la enseña enseguida
+  const t = cargar("nubi-mostrar", ""); if (!t) return;
+  const i = mezcla.findIndex(m => m.texto === t); if (i >= 0) iFrase = i;
+  try { localStorage.removeItem("nubi-mostrar"); } catch(e){}
+})();
 let iFe = diaDelAño % fe.length;
 function pintarFrase(){
   const m = mezcla[iFrase];
+  if (m.cita){
+    document.getElementById("frase").textContent = "«" + m.texto + "»";
+    document.getElementById("fraseEtiqueta").textContent = "📖 Cita de tus libros";
+    document.getElementById("fraseFuente").textContent = m.fuente ? "— " + m.fuente : "";
+    return;
+  }
   document.getElementById("frase").textContent = m.texto;
   document.getElementById("fraseEtiqueta").textContent = m.fuente ? "📚 Una idea para hoy" : "✨ Tu afirmación de hoy";
   document.getElementById("fraseFuente").textContent = m.fuente ? "Inspirado en «" + m.fuente.split(" · ")[0] + "», de " + m.fuente.split(" · ")[1] : "";
 }
 function pintarFe(){
   document.getElementById("fe").textContent = fe[iFe][0];
-  document.getElementById("cita").textContent = fe[iFe][1] + " · Reina-Valera";
+  document.getElementById("cita").textContent = fe[iFe][1] ? fe[iFe][1] + (iFe < 22 ? " · Reina-Valera" : "") : "";
 }
 let iTrab = (diaDelAño * 7) % trabajo.length;
 function pintarTrabajo(){ document.getElementById("trabajo").textContent = trabajo[iTrab]; }
@@ -840,6 +904,37 @@ document.getElementById("diaFlojo").onclick = () => {
   decir("¡Mira de lo que eres capaz! 💪"); flores(14);
 };
 pintarFrasco();
+
+// Mis frases: formulario y lista
+const mfTipo = document.getElementById("mfTipo"), mfFuente = document.getElementById("mfFuente");
+const placeholders = {libro:"Libro y autor (ej. Esencialismo · Greg McKeown)", afirmacion:"(opcional)", trabajo:"(opcional)", versiculo:"Cita (ej. Salmo 91:1 · Reina-Valera 1960)"};
+mfTipo.onchange = () => { mfFuente.placeholder = placeholders[mfTipo.value]; };
+document.getElementById("fraseForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const texto = document.getElementById("mfTexto").value.trim().replace(/^[«"“]+|[»"”]+$/g, "");
+  if (!texto) return;
+  misFrases.push({texto, tipo: mfTipo.value, fuente: mfFuente.value.trim(), fecha: claveHoy});
+  guardar("nubi-misfrases", misFrases);
+  if (mfTipo.value === "libro" || mfTipo.value === "afirmacion") guardar("nubi-mostrar", texto);
+  location.reload();
+});
+function pintarMisFrases(){
+  const nombres = {libro:"📖 Cita", afirmacion:"✨ Afirmación", trabajo:"💼 Trabajo", versiculo:"🕊️ Versículo"};
+  document.getElementById("mfCuenta").textContent = misFrases.length
+    ? `Tienes ${misFrases.length} ${misFrases.length === 1 ? "frase tuya" : "frases tuyas"} en Nubi. 💗`
+    : "Añade aquí tus citas favoritas, copiadas de tus libros. Nubi las mezclará con las demás.";
+  document.getElementById("mfVer").style.display = misFrases.length ? "" : "none";
+  const cont = document.getElementById("mfLista"); cont.innerHTML = "";
+  misFrases.forEach((m, k) => {
+    const row = document.createElement("div"); row.className = "mf-item";
+    const d = document.createElement("div"); d.textContent = "«" + m.texto + "»";
+    const sm = document.createElement("small"); sm.textContent = nombres[m.tipo] + (m.fuente ? " · " + m.fuente : ""); d.appendChild(sm);
+    const del = document.createElement("button"); del.className = "borrar"; del.textContent = "×"; del.setAttribute("aria-label", "Borrar frase");
+    del.onclick = () => { misFrases.splice(k, 1); guardar("nubi-misfrases", misFrases); location.reload(); };
+    row.append(d, del); cont.appendChild(row);
+  });
+}
+pintarMisFrases();
 
 // Gratitud
 let gracias = cargar("nubi-gracias", {});
