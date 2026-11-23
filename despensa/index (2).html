@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mi despensa</title>
+<meta name="theme-color" content="#6e0f2f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style id="css">
+/* VOICE: tierna, delicada, práctica — una libreta de casa en rosa y burdeos
+   IDEA: la etiqueta de despensa: cada producto con su estado 📦 🟡 🛒
+   PICTURE: la propia lista, grande y tocable, con contadores arriba
+   COLOUR and TYPE: rubor #fff3f7, burdeos #6e0f2f, rosa vivo #e23d7a; Playfair Display + Nunito
+   LAYOUT: cabecera burdeos con contadores, pestañas Casa / La compra, secciones por zona */
+:root{color-scheme:light dark;
+--bg:light-dark(#fff3f7,#1a0610);--card:light-dark(#ffffff,#2a0b19);--ink:light-dark(#3d0a1c,#fde6ee);
+--soft:light-dark(#8d4b63,#d6a3b6);--line:light-dark(#f5d3df,#4a1a2e);--rose:#e23d7a;
+--wine:light-dark(#6e0f2f,#f28bb0);--blush:light-dark(#ffe0eb,#3d1024);--yel:light-dark(#fff3c4,#3f3208);
+--head:light-dark(#6e0f2f,#33091a)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Nunito,system-ui,sans-serif;overflow-x:clip}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--rose);outline-offset:2px}
+.top{background:var(--head);color:#fff;padding:22px max(5vw,16px) 18px;background-image:radial-gradient(circle at 92% -20%,#e23d7a88,transparent 55%),radial-gradient(circle at 0% 120%,#ff9ec044,transparent 50%)}
+.wrap{max-width:760px;margin:0 auto}
+.tt{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{font:600 clamp(32px,7vw,44px)/1.05 'Playfair Display',Georgia,serif;margin:0}
+h1 i{color:#ffb3cd}
+.save{font-size:13px;background:#ffffff22;border-radius:99px;padding:4px 12px;white-space:nowrap}
+.sub{margin:6px 0 16px;color:#ffd3e2;font-size:15px}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.kpi{background:#ffffff18;border:1px solid #ffffff30;border-radius:18px;padding:10px 12px;text-align:left;color:#fff}
+.kpi b{display:block;font-size:clamp(26px,6vw,34px);line-height:1.1}
+.kpi span{font-size:13px;color:#ffd3e2}
+.kpi[aria-pressed=true]{background:#fff;color:var(--head)}.kpi[aria-pressed=true] span{color:#8d4b63}
+.tabs{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px max(5vw,16px)}
+.tabs .wrap{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:var(--blush);border-radius:99px;padding:4px}
+.tab{border:0;background:none;border-radius:99px;min-height:44px;font-weight:800;color:var(--wine)}
+.tab[aria-selected=true]{background:var(--card);box-shadow:0 2px 8px #6e0f2f22}
+main{padding:14px max(5vw,16px) 120px}
+.tool{display:flex;gap:8px;margin-bottom:10px}
+.search{flex:1;min-height:46px;border:1.5px solid var(--line);background:var(--card);border-radius:14px;padding:0 14px;font-size:16px}
+.btn{min-height:46px;border:0;border-radius:14px;padding:0 16px;font-weight:800;background:var(--rose);color:#fff;white-space:nowrap}
+.btn.ghost{background:var(--blush);color:var(--wine)}
+.btn:disabled{opacity:.45;cursor:default}
+.legend{font-size:13px;color:var(--soft);margin:0 0 8px}
+.sec{margin-top:18px}
+.sec h2{font:700 17px/1.2 Nunito,sans-serif;color:var(--wine);margin:0 0 8px;display:flex;gap:8px;align-items:center}
+.sec h2 small{font-weight:600;color:var(--soft);font-size:13px}
+.list{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.row{display:flex;align-items:center;gap:8px;padding:6px 8px 6px 4px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.row.s-acabo{background:var(--blush)}.row.s-uso{background:var(--yel)}
+.nm{flex:1;border:0;background:none;text-align:left;padding:8px 10px;min-height:44px;border-radius:12px}
+.nm b{display:block;font-weight:700;line-height:1.25}
+.nm span{font-size:13px;color:var(--soft);white-space:nowrap}
+.nm span.add{color:var(--rose)}
+.seg{display:flex;gap:4px;flex:none}
+.seg button{width:44px;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);font-size:19px;opacity:.5;filter:grayscale(.6)}
+.seg button[aria-pressed=true]{opacity:1;filter:none;border-color:var(--rose);box-shadow:0 0 0 2px #e23d7a33}
+.empty{text-align:center;padding:40px 16px;color:var(--soft)}
+.empty b{display:block;font:600 24px/1.2 'Playfair Display',serif;color:var(--wine);margin-bottom:6px}
+.prog{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin-bottom:6px}
+.prog p{margin:0 0 8px;font-weight:700}
+.bar{height:10px;border-radius:99px;background:var(--blush);overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#ff8fb6,var(--rose));border-radius:99px;transition:width .3s}
+.crow{display:flex;align-items:center;gap:10px;padding:8px 10px;border-top:1px solid var(--line)}
+.crow:first-child{border-top:0}
+.chk{width:44px;height:44px;flex:none;border-radius:50%;border:2px solid var(--rose);background:var(--card);color:transparent;font-weight:900;font-size:20px}
+.crow.got .chk{background:var(--rose);color:#fff}
+.crow.got .ct b{text-decoration:line-through;opacity:.55}
+.ct{flex:1}.ct b{display:block;font-weight:700}.ct span{font-size:13px;color:var(--soft)}
+.skip{border:1.5px solid var(--line);background:none;border-radius:12px;min-height:44px;padding:0 10px;font-size:13px;font-weight:700;color:var(--soft);white-space:nowrap}
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--bg);border-top:1px solid var(--line);padding:10px max(5vw,16px) calc(10px + env(safe-area-inset-bottom))}
+.dock .wrap{display:flex;gap:8px}.dock .btn{flex:1}
+.ov{position:fixed;inset:0;z-index:20;background:#3d0a1c88;display:flex;align-items:flex-end;justify-content:center}
+.ov[hidden]{display:none}
+.sheet{background:var(--card);width:min(560px,100%);border-radius:24px 24px 0 0;padding:20px max(5vw,18px) calc(20px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto}
+.sheet h3{font:600 24px/1.1 'Playfair Display',serif;color:var(--wine);margin:0 0 14px}
+.sheet label{display:block;font-weight:700;font-size:14px;margin:12px 0 4px;color:var(--soft)}
+.sheet input,.sheet select{width:100%;min-height:48px;border:1.5px solid var(--line);border-radius:14px;padding:0 12px;background:var(--bg);font-size:16px}
+.sheet p{margin:0 0 6px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.acts .btn{flex:1}
+.btn.del{background:none;color:var(--rose);border:1.5px solid var(--rose);flex:0 0 auto}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--head);color:#fff;padding:10px 18px;border-radius:99px;font-weight:700;z-index:30;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1}
+@media(max-width:420px){.seg button{width:40px;height:44px;font-size:17px}.row{gap:4px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="application/json" id="state">{"v":1,"items":[{"id":"i1","n":"Huevos","c":"nevera","s":"acabo","q":"","skip":false,"got":false},{"id":"i2","n":"Cottage","c":"nevera","s":"acabo","q":"","skip":false,"got":false},{"id":"i3","n":"Queso sin lactosa","c":"nevera","s":"acabo","q":"","skip":false,"got":false},{"id":"i4","n":"Nata sin lactosa","c":"nevera","s":"acabo","q":"","skip":false,"got":false},{"id":"i5","n":"Jamón","c":"nevera","s":"acabo","q":"","skip":false,"got":false},{"id":"i6","n":"Salchichas de perritos","c":"nevera","s":"acabo","q":"","skip":false,"got":false},{"id":"i7","n":"Salchichas alemanas","c":"nevera","s":"acabo","q":"","skip":false,"got":false},{"id":"i8","n":"Pechugas","c":"carne","s":"acabo","q":"","skip":false,"got":false},{"id":"i9","n":"Carne molida","c":"carne","s":"acabo","q":"","skip":false,"got":false},{"id":"i10","n":"Pescado","c":"carne","s":"acabo","q":"","skip":false,"got":false},{"id":"i11","n":"Langostinos","c":"carne","s":"acabo","q":"","skip":false,"got":false},{"id":"i12","n":"Champiñones","c":"verduras","s":"acabo","q":"","skip":false,"got":false},{"id":"i13","n":"Lechuga","c":"verduras","s":"acabo","q":"","skip":false,"got":false},{"id":"i14","n":"Zanahoria","c":"verduras","s":"acabo","q":"","skip":false,"got":false},{"id":"i15","n":"Remolacha","c":"verduras","s":"acabo","q":"","skip":false,"got":false},{"id":"i16","n":"Papas","c":"verduras","s":"acabo","q":"","skip":false,"got":false},{"id":"i17","n":"Cebolla","c":"verduras","s":"acabo","q":"","skip":false,"got":false},{"id":"i18","n":"Cebollino","c":"verduras","s":"acabo","q":"","skip":false,"got":false},{"id":"i19","n":"Tomate","c":"verduras","s":"acabo","q":"","skip":false,"got":false},{"id":"i20","n":"Ajo","c":"verduras","s":"acabo","q":"","skip":false,"got":false},{"id":"i21","n":"Plátanos maduros","c":"frutas","s":"acabo","q":"","skip":false,"got":false},{"id":"i22","n":"Plátanos verdes","c":"frutas","s":"acabo","q":"","skip":false,"got":false},{"id":"i23","n":"Pan de cereales","c":"pan","s":"acabo","q":"","skip":false,"got":false},{"id":"i24","n":"Maíz","c":"despensa","s":"acabo","q":"","skip":false,"got":false},{"id":"i25","n":"Atún","c":"despensa","s":"acabo","q":"","skip":false,"got":false},{"id":"i26","n":"Harina de maíz","c":"despensa","s":"acabo","q":"","skip":false,"got":false},{"id":"i27","n":"Avena","c":"despensa","s":"acabo","q":"","skip":false,"got":false},{"id":"i28","n":"Arroz","c":"despensa","s":"acabo","q":"","skip":false,"got":false},{"id":"i29","n":"Pasta","c":"despensa","s":"acabo","q":"","skip":false,"got":false},{"id":"i30","n":"Arvejas","c":"despensa","s":"acabo","q":"","skip":false,"got":false},{"id":"i31","n":"Caraotas","c":"despensa","s":"acabo","q":"","skip":false,"got":false},{"id":"i32","n":"Tomate triturado","c":"despensa","s":"acabo","q":"","skip":false,"got":false},{"id":"i33","n":"Caldo de pollo","c":"despensa","s":"acabo","q":"","skip":false,"got":false},{"id":"i34","n":"Papas fritas","c":"congelados","s":"acabo","q":"","skip":false,"got":false},{"id":"i35","n":"Jabón de ropa","c":"limpieza","s":"acabo","q":"","skip":false,"got":false},{"id":"i36","n":"Suavizante","c":"limpieza","s":"acabo","q":"","skip":false,"got":false},{"id":"i37","n":"Pasta dental","c":"bano","s":"acabo","q":"","skip":false,"got":false},{"id":"i38","n":"Aceite de oliva","c":"despensa","s":"acabo","q":"","skip":false,"got":false},{"id":"i39","n":"Sal","c":"despensa","s":"acabo","q":"","skip":false,"got":false},{"id":"i40","n":"Estevia","c":"despensa","s":"acabo","q":"","skip":false,"got":false},{"id":"i41","n":"Orégano","c":"despensa","s":"acabo","q":"","skip":false,"got":false},{"id":"i42","n":"Chocolate sin lactosa","c":"despensa","s":"acabo","q":"","skip":false,"got":false},{"id":"i43","n":"Pimentón","c":"verduras","s":"acabo","q":"","skip":false,"got":false},{"id":"i44","n":"Guacamole","c":"nevera","s":"acabo","q":"","skip":false,"got":false},{"id":"i45","n":"Yogur griego","c":"nevera","s":"acabo","q":"","skip":false,"got":false},{"id":"i46","n":"Leche sin lactosa","c":"nevera","s":"acabo","q":"","skip":false,"got":false},{"id":"i47","n":"Gel de baño","c":"bano","s":"acabo","q":"","skip":false,"got":false},{"id":"i48","n":"Papel higiénico","c":"bano","s":"acabo","q":"","skip":false,"got":false},{"id":"i49","n":"Desodorante en spray","c":"bano","s":"acabo","q":"","skip":false,"got":false},{"id":"i50","n":"Desodorante de bola","c":"bano","s":"acabo","q":"","skip":false,"got":false},{"id":"i51","n":"Compresas","c":"bano","s":"acabo","q":"","skip":false,"got":false},{"id":"i52","n":"Mantequilla de maní","c":"despensa","s":"acabo","q":"","skip":false,"got":false}],"next":53}</script>
+<script id="app">
+{
+const CATS=[['nevera','❄️','Nevera'],['carne','🥩','Carne y pescado'],['verduras','🥦','Verduras'],['frutas','🍎','Frutas'],['pan','🥖','Pan'],['despensa','🥫','Despensa'],['congelados','🧊','Congelados'],['bebidas','🧃','Bebidas'],['limpieza','🧽','Limpieza'],['bano','🧴','Baño e higiene'],['otros','🎀','Otros']];
+const ST={nuevo:['📦','Nuevo'],uso:['🟡','En uso'],acabo:['🛒','Se acabó']};
+const FONTS='<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,600&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">';
+const KEY='mi-despensa-v1';
+let S=JSON.parse(document.getElementById('state').textContent);
+try{const g=localStorage.getItem(KEY);if(g){const d=JSON.parse(g);if(d&&Array.isArray(d.items))S=d}}catch(e){}
+S.items.forEach(i=>{i.q=i.q||'';i.skip=!!i.skip;i.got=!!i.got});
+let UI={tab:'casa',f:'todos',q:''};
+try{const u=JSON.parse(sessionStorage.getItem('despensa-ui')||'null');if(u){UI.tab=u.tab||'casa';UI.f=u.f||'todos';UI._y=u.y||0}}catch(e){}
+let saveState='ok';
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const byName=(a,b)=>a.n.localeCompare(b.n,'es');
+const cat=k=>CATS.find(c=>c[0]===k)||CATS[CATS.length-1];
+const root=document.getElementById('root');
+function counts(){const c={nuevo:0,uso:0,acabo:0};S.items.forEach(i=>c[i.s]++);return c}
+
+function shell(){
+  const c=counts();
+  root.innerHTML=`
+  <header class="top"><div class="wrap">
+    <div class="tt"><h1>Mi <i>despensa</i></h1><span class="save" id="save"></span></div>
+    <p class="sub">Lo que hay en casa y lo que toca comprar.</p>
+    <div class="kpis">
+      ${['nuevo','uso','acabo'].map(s=>`<button class="kpi" data-kpi="${s}" aria-pressed="${UI.tab==='casa'&&UI.f===s}"><b>${c[s]}</b><span>${ST[s][0]} ${ST[s][1]}</span></button>`).join('')}
+    </div>
+  </div></header>
+  <nav class="tabs"><div class="wrap" role="tablist">
+    <button class="tab" role="tab" data-tab="casa" aria-selected="${UI.tab==='casa'}">🏠 En casa</button>
+    <button class="tab" role="tab" data-tab="compra" aria-selected="${UI.tab==='compra'}">🛒 La compra (${S.items.filter(i=>i.s==='acabo'&&!i.skip).length})</button>
+  </div></nav>
+  <main><div class="wrap" id="view"></div></main>
+  <div id="dock"></div>
+  <div class="ov" id="ov" hidden><div class="sheet" id="sheet" role="dialog" aria-modal="true"></div></div>
+  <div class="toast" id="toast"></div>`;
+  UI.tab==='casa'?casa():compra();
+  paintSave();
+}
+
+function casa(){
+  document.getElementById('view').innerHTML=`
+    <div class="tool"><input class="search" id="q" type="search" placeholder="Buscar producto…" value="${esc(UI.q)}" aria-label="Buscar"><button class="btn" data-add>+ Añadir</button></div>
+    <p class="legend">Toca 📦 nuevo · 🟡 en uso · 🛒 se acabó. Toca el nombre para cambiar la cantidad.</p>
+    <div id="list"></div>
+    <p class="legend" style="text-align:center;margin-top:28px"><button class="btn ghost" data-backup>💾 Copia de seguridad</button></p>`;
+  document.getElementById('dock').innerHTML='';
+  list();
+}
+function list(){
+  const q=UI.q.trim().toLowerCase();
+  const its=S.items.filter(i=>(UI.f==='todos'||i.s===UI.f)&&(!q||i.n.toLowerCase().includes(q)));
+  let h='';
+  if(UI.f!=='todos')h+=`<p class="legend">Mostrando solo ${ST[UI.f][0]} ${ST[UI.f][1]} · <a href="#" data-kpi="todos" style="color:var(--rose)">ver todo</a></p>`;
+  CATS.forEach(([k,e,t])=>{
+    const g=its.filter(i=>i.c===k).sort(byName);if(!g.length)return;
+    h+=`<section class="sec"><h2>${e} ${t} <small>${g.length}</small></h2><div class="list">${g.map(i=>`
+      <div class="row s-${i.s}" data-id="${i.id}">
+        <button class="nm" data-edit><b>${esc(i.n)}</b>${i.q?`<span>${esc(i.q)}</span>`:`<span class="add">+ cantidad</span>`}</button>
+        <div class="seg">${['nuevo','uso','acabo'].map(s=>`<button data-set="${s}" aria-pressed="${i.s===s}" aria-label="${ST[s][1]}">${ST[s][0]}</button>`).join('')}</div>
+      </div>`).join('')}</div></section>`;
+  });
+  document.getElementById('list').innerHTML=h||`<div class="empty"><b>Nada por aquí</b>${q?'No hay productos con ese nombre.':'No hay productos en este estado.'}</div>`;
+}
+
+function compra(){
+  const need=S.items.filter(i=>i.s==='acabo');
+  const go=need.filter(i=>!i.skip),sk=need.filter(i=>i.skip),got=go.filter(i=>i.got).length;
+  let h='<div class="tool"><button class="btn" data-add style="flex:1">+ Añadir a la compra</button></div>';
+  if(!need.length){
+    h+=`<div class="empty"><b>No falta nada 🎀</b>Cuando algo se acabe, márcalo con 🛒 en «En casa» y aparecerá aquí.</div>`;
+  }else{
+    h+=`<div class="prog"><p>${got} de ${go.length} en el carrito</p><div class="bar"><i style="width:${go.length?Math.round(got/go.length*100):0}%"></i></div></div>`;
+    CATS.forEach(([k,e,t])=>{
+      const g=go.filter(i=>i.c===k).sort(byName);if(!g.length)return;
+      h+=`<section class="sec"><h2>${e} ${t}</h2><div class="list">${g.map(i=>`
+        <div class="crow ${i.got?'got':''}" data-id="${i.id}">
+          <button class="chk" data-got aria-pressed="${i.got}" aria-label="En el carrito">✓</button>
+          <button class="ct nm" data-edit style="padding:4px 0"><b>${esc(i.n)}</b><span>${i.q?esc(i.q):'<span style="color:var(--rose)">+ cantidad</span>'}</span></button>
+          <button class="skip" data-skip>Esta vez no</button>
+        </div>`).join('')}</div></section>`;
+    });
+    if(sk.length)h+=`<section class="sec"><h2>⏸️ Esta vez no <small>${sk.length}</small></h2><div class="list">${sk.sort(byName).map(i=>`
+        <div class="crow" data-id="${i.id}" style="opacity:.75"><div class="ct"><b>${cat(i.c)[1]} ${esc(i.n)}</b><span>${esc(i.q)}</span></div><button class="skip" data-skip>Volver a la lista</button></div>`).join('')}</div></section>`;
+  }
+  document.getElementById('view').innerHTML=h;
+  document.getElementById('dock').innerHTML=need.length?`<div class="dock"><div class="wrap"><button class="btn ghost" data-copy ${go.length?'':'disabled'}>Copiar lista</button><button class="btn" data-finish ${got?'':'disabled'}>Terminar compra</button></div></div>`:'';
+}
+
+function paintSave(){
+  const el=document.getElementById('save');if(!el)return;
+  el.textContent={ok:'✓ Guardado en tu móvil',err:'No se pudo guardar'}[saveState];
+}
+function toast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('on'),1800)}
+function commit(){shell();save()}
+function save(){
+  try{localStorage.setItem(KEY,JSON.stringify({v:1,items:S.items,next:S.next}));saveState='ok'}catch(e){saveState='err'}
+  paintSave();
+}
+function sheet(html){const ov=document.getElementById('ov');document.getElementById('sheet').innerHTML=html;ov.hidden=false;const f=ov.querySelector('input');if(f)setTimeout(()=>f.focus(),50)}
+function closeSheet(){document.getElementById('ov').hidden=true}
+function openEdit(id){
+  const i=id?S.items.find(x=>x.id===id):{n:'',c:'despensa',s:'acabo',q:''};
+  sheet(`<h3>${id?'Editar producto':'Añadir producto'}</h3>
+    <form id="ef" data-id="${id||''}">
+      <label for="fn">Producto</label><input id="fn" required value="${esc(i.n)}" placeholder="Ej. Leche sin lactosa">
+      <label for="fq">Cantidad a comprar</label><input id="fq" value="${esc(i.q)}" placeholder="Ej. 2 paquetes, 1 kg, 1 docena">
+      <label for="fc">Sección</label><select id="fc">${CATS.map(([k,e,t])=>`<option value="${k}" ${i.c===k?'selected':''}>${e} ${t}</option>`).join('')}</select>
+      <label for="fs">Estado</label><select id="fs">${Object.entries(ST).map(([k,[e,t]])=>`<option value="${k}" ${i.s===k?'selected':''}>${e} ${t}</option>`).join('')}</select>
+      <div class="acts">${id?'<button type="button" class="btn del" data-del>Borrar</button>':''}<button type="button" class="btn ghost" data-close>Cancelar</button><button class="btn" type="submit">Guardar</button></div>
+    </form>`);
+}
+function copyList(){
+  const go=S.items.filter(i=>i.s==='acabo'&&!i.skip);let t='🛒 Lista de la compra\n';
+  CATS.forEach(([k,e,n])=>{const g=go.filter(i=>i.c===k).sort(byName);if(g.length)t+=`\n${e} ${n}\n`+g.map(i=>'• '+i.n+(i.q?' — '+i.q:'')).join('\n')+'\n'});
+  navigator.clipboard.writeText(t).then(()=>toast('Lista copiada ✓'),()=>toast('No se pudo copiar'));
+}
+
+root.addEventListener('click',e=>{
+  const b=e.target.closest('button,a');if(!b)return;
+  const row=b.closest('[data-id]'),it=row&&row.dataset.id?S.items.find(x=>x.id===row.dataset.id):null;
+  if(b.dataset.tab){UI.tab=b.dataset.tab;shell();scrollTo(0,0);return}
+  if(b.dataset.kpi){e.preventDefault();const k=b.dataset.kpi;UI.tab='casa';UI.f=(UI.f===k||k==='todos')?'todos':k;shell();return}
+  if(b.dataset.set&&it){const s=b.dataset.set;if(it.s===s)return;it.s=s;it.got=false;it.skip=false;commit();toast(`${it.n}: ${ST[s][0]} ${ST[s][1]}`);return}
+  if('edit' in b.dataset&&it){openEdit(it.id);return}
+  if('add' in b.dataset){openEdit(null);return}
+  if('got' in b.dataset&&it){it.got=!it.got;commit();return}
+  if('skip' in b.dataset&&it){it.skip=!it.skip;it.got=false;commit();toast(it.skip?`${it.n}: esta vez no`:`${it.n}: vuelve a la lista`);return}
+  if('copy' in b.dataset){copyList();return}
+  if('finish' in b.dataset){const n=S.items.filter(i=>i.s==='acabo'&&!i.skip&&i.got).length,r=S.items.filter(i=>i.s==='acabo').length-n;
+    sheet(`<h3>Terminar compra</h3><p><b>${n}</b> producto${n===1?'':'s'} pasa${n===1?'':'n'} a 📦 Nuevo.</p><p style="color:var(--soft)">${r?`Lo que no has marcado (${r}) se queda en 🛒 para la próxima.`:'¡Lo tienes todo!'}</p><div class="acts"><button class="btn ghost" data-close>Seguir comprando</button><button class="btn" data-done>Guardar compra</button></div>`);return}
+  if('close' in b.dataset){closeSheet();return}
+  if('backup' in b.dataset){sheet(`<h3>Copia de seguridad</h3><p>Tu lista se guarda solo en este móvil. Copia este texto y guárdalo en una nota o en WhatsApp para no perderla.</p>
+    <div class="acts"><button class="btn" data-bcopy>Copiar mi lista</button></div>
+    <label for="bin">Para recuperarla, pega aquí el texto guardado:</label><textarea id="bin" rows="4" style="width:100%;border:1.5px solid var(--line);border-radius:14px;padding:10px;background:var(--bg);font-size:16px"></textarea>
+    <div class="acts"><button class="btn ghost" data-close>Cerrar</button><button class="btn" data-brest>Recuperar</button></div>`);return}
+  if('bcopy' in b.dataset){navigator.clipboard.writeText(JSON.stringify({v:1,items:S.items,next:S.next})).then(()=>toast('Copiada ✓'),()=>toast('No se pudo copiar'));return}
+  if('brest' in b.dataset){try{const d=JSON.parse(document.getElementById('bin').value);if(!d||!Array.isArray(d.items))throw 0;
+    S.items=d.items.filter(i=>i&&i.id&&i.n).map(i=>({id:String(i.id),n:String(i.n),c:CATS.some(c=>c[0]===i.c)?i.c:'otros',s:ST[i.s]?i.s:'nuevo',q:String(i.q||''),skip:!!i.skip,got:!!i.got}));
+    S.next=Math.max(Number(d.next)||0,S.items.length+1);closeSheet();commit();toast('Lista recuperada ✓')}catch(e){toast('Ese texto no es una copia válida')}return}
+  if('done' in b.dataset){let n=0;S.items.forEach(i=>{if(i.s==='acabo'&&i.got&&!i.skip){i.s='nuevo';n++}i.got=false;i.skip=false});closeSheet();commit();toast(`Compra guardada · ${n} a 📦`);return}
+  if('del' in b.dataset){const id=b.closest('form').dataset.id;
+    if(b.dataset.sure){S.items=S.items.filter(x=>x.id!==id);closeSheet();commit();toast('Producto borrado')}else{b.dataset.sure='1';b.textContent='¿Seguro? Toca otra vez'}return}
+});
+root.addEventListener('submit',e=>{
+  e.preventDefault();const f=e.target,n=f.querySelector('#fn').value.trim();if(!n)return;
+  const v={n,q:f.querySelector('#fq').value.trim(),c:f.querySelector('#fc').value,s:f.querySelector('#fs').value};
+  if(f.dataset.id){const it=S.items.find(x=>x.id===f.dataset.id);if(it.s!==v.s){it.got=false;it.skip=false}Object.assign(it,v)}
+  else S.items.push({id:'i'+(S.next++),...v,skip:false,got:false});
+  closeSheet();commit();toast('Guardado ✓');
+});
+root.addEventListener('input',e=>{if(e.target.id==='q'){UI.q=e.target.value;list()}});
+root.addEventListener('click',e=>{if(e.target.id==='ov')closeSheet()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet()});
+
+shell();
+if(UI._y)requestAnimationFrame(()=>scrollTo(0,UI._y));
+try{sessionStorage.removeItem('despensa-ui')}catch(e){}
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js',{scope:'./'}).catch(()=>{});
+}
+</script>
+</body>
+</html>
