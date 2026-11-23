@@ -1,0 +1,17 @@
+{
+  "name": "Mi despensa",
+  "short_name": "Mi despensa",
+  "id": "despensa-lila.html",
+  "start_url": "despensa-lila.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7f1ff",
+  "theme_color": "#4b1d6e",
+  "lang": "es",
+  "icons": [
+    {"src": "lila-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "lila-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "lila-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
